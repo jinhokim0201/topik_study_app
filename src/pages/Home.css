@@ -1,0 +1,304 @@
+.home {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 헤더 */
+.home-header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: var(--text-on-primary);
+    padding: var(--spacing-lg) 0;
+    box-shadow: var(--shadow-md);
+}
+
+.header-content {
+    animation: fadeIn 0.8s ease;
+}
+
+.logo h1 {
+    font-size: var(--font-2xl);
+    margin-bottom: var(--spacing-xs);
+}
+
+.subtitle {
+    font-size: var(--font-md);
+    opacity: 0.9;
+    margin: 0;
+}
+
+.btn-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-on-primary);
+    font-size: var(--font-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+}
+
+.btn-icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1) rotate(15deg);
+}
+
+/* 메인 콘텐츠 */
+.home-main {
+    flex: 1;
+    padding: var(--spacing-2xl) 0;
+}
+
+/* 환영 섹션 */
+.welcome-section {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.welcome-section h2 {
+    font-size: var(--font-2xl);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: var(--spacing-md);
+}
+
+.welcome-text {
+    font-size: var(--font-lg);
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.current-level {
+    margin-top: var(--spacing-lg);
+}
+
+/* 메뉴 그리드 */
+.menu-section {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+}
+
+.menu-card {
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    padding: var(--spacing-xl);
+    text-align: center;
+    border: 2px solid transparent;
+    transition: var(--transition);
+}
+
+.menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.menu-card:hover::before {
+    transform: scaleX(1);
+}
+
+.menu-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-8px);
+}
+
+.menu-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--spacing-md);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-3xl);
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    transition: var(--transition);
+}
+
+.menu-icon.secondary {
+    background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+}
+
+.menu-icon.success {
+    background: linear-gradient(135deg, var(--success), var(--success-dark));
+}
+
+.menu-icon.warning {
+    background: linear-gradient(135deg, var(--warning), var(--warning-dark));
+}
+
+.menu-card:hover .menu-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.menu-card h3 {
+    font-size: var(--font-xl);
+    margin-bottom: var(--spacing-sm);
+}
+
+.menu-card p {
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+.menu-arrow {
+    position: absolute;
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
+    font-size: var(--font-xl);
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: var(--transition);
+}
+
+.menu-card:hover .menu-arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* 급수 안내 */
+.level-info-section {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.level-info-section h2 {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.level-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.level-card {
+    text-align: center;
+    padding: var(--spacing-lg);
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.level-card.active {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.05), rgba(123, 104, 238, 0.05));
+}
+
+.level-card:hover {
+    transform: translateY(-4px);
+}
+
+.level-header {
+    margin-bottom: var(--spacing-md);
+}
+
+.level-number {
+    font-size: var(--font-3xl);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.level-name {
+    font-size: var(--font-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: var(--spacing-xs);
+}
+
+.level-score {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 600;
+}
+
+.level-desc {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* 특징 섹션 */
+.features-section {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.features-section h2 {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.feature-card {
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.feature-icon {
+    font-size: var(--font-3xl);
+    margin-bottom: var(--spacing-md);
+}
+
+.feature-card h4 {
+    font-size: var(--font-lg);
+    margin-bottom: var(--spacing-sm);
+}
+
+.feature-card p {
+    color: var(--text-secondary);
+    font-size: var(--font-sm);
+    margin: 0;
+}
+
+/* 푸터 */
+.home-footer {
+    background: var(--bg-secondary);
+    padding: var(--spacing-lg) 0;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    margin-top: var(--spacing-2xl);
+}
+
+.home-footer p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .level-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+}

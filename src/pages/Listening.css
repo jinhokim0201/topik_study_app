@@ -1,0 +1,221 @@
+.listening {
+    min-height: 100vh;
+    padding: var(--spacing-xl) 0;
+}
+
+.listening-header {
+    margin-bottom: var(--spacing-xl);
+}
+
+.header-top {
+    margin-bottom: var(--spacing-lg);
+}
+
+.listening-header h1 {
+    font-size: var(--font-2xl);
+}
+
+.level-selector {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 600;
+}
+
+.level-selector select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-md);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.audio-player {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    margin-bottom: var(--spacing-xl);
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.05), rgba(123, 104, 238, 0.05));
+}
+
+.audio-icon {
+    font-size: 60px;
+    margin-bottom: var(--spacing-md);
+    animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.audio-instruction {
+    font-size: var(--font-lg);
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xl);
+}
+
+.playback-controls {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.speed-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background: var(--bg-secondary);
+    font-weight: 600;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.speed-btn.active,
+.speed-btn:hover {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--text-on-primary);
+}
+
+.audio-script-display {
+    background: var(--bg-secondary);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    margin: var(--spacing-xl) 0;
+    text-align: left;
+    border: 2px solid var(--primary);
+}
+
+.audio-script-display h4 {
+    font-size: var(--font-lg);
+    margin-bottom: var(--spacing-md);
+    color: var(--primary);
+}
+
+.audio-script-display p {
+    font-size: var(--font-md);
+    line-height: 1.8;
+    margin: 0;
+}
+
+.script-toggle {
+    margin-top: var(--spacing-lg);
+}
+
+.question-section {
+    padding: var(--spacing-2xl);
+}
+
+.question-text {
+    font-size: var(--font-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.option-button {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-lg);
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    text-align: left;
+    transition: var(--transition);
+    cursor: pointer;
+    position: relative;
+}
+
+.option-button:not(.correct):not(.incorrect):hover {
+    border-color: var(--primary);
+    transform: translateX(4px);
+}
+
+.option-button.selected {
+    border-color: var(--primary);
+    background: rgba(74, 144, 226, 0.1);
+}
+
+.option-button.correct {
+    border-color: var(--success);
+    background: rgba(80, 200, 120, 0.1);
+}
+
+.option-button.incorrect {
+    border-color: var(--error);
+    background: rgba(255, 107, 107, 0.1);
+}
+
+.check-icon,
+.cross-icon {
+    position: absolute;
+    right: var(--spacing-lg);
+    font-size: var(--font-xl);
+    font-weight: 700;
+}
+
+.check-icon {
+    color: var(--success);
+}
+
+.cross-icon {
+    color: var(--error);
+}
+
+.answer-feedback {
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+}
+
+.answer-feedback.correct {
+    background: rgba(80, 200, 120, 0.1);
+    border: 2px solid var(--success);
+}
+
+.answer-feedback.incorrect {
+    background: rgba(255, 107, 107, 0.1);
+    border: 2px solid var(--error);
+}
+
+.feedback-icon {
+    font-size: 48px;
+    margin-bottom: var(--spacing-md);
+}
+
+.answer-feedback h4 {
+    font-size: var(--font-xl);
+    margin-bottom: var(--spacing-md);
+}
+
+.explanation {
+    font-size: var(--font-md);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+
+    .audio-player,
+    .question-section {
+        padding: var(--spacing-lg);
+    }
+
+    .playback-controls {
+        flex-wrap: wrap;
+    }
+}
