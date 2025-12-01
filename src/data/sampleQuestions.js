@@ -1,144 +1,248 @@
-// 샘플 TOPIK 문제 데이터
+// 샘플 TOPIK 문제 데이터 (100문제/급수 확장판)
+
+// 데이터 생성 헬퍼 함수
+const getRandomItem = (arr, seed) => arr[seed % arr.length];
+const generateId = (type, level, index) => `${type[0].toUpperCase()}${level}_${String(index + 1).padStart(3, '0')}`;
+
+// ==========================================
+// 데이터 풀 (Data Pools)
+// ==========================================
+
+const commonTopics = {
+    beginner: ['가족', '취미', '날씨', '쇼핑', '음식', '교통', '학교', '집', '약속', '주말'],
+    intermediate: ['건강', '직장', '여행', '공공장소', '문화', '성격', '고민', '초대', '부탁', '거절'],
+    advanced: ['경제', '정치', '사회', '환경', '기술', '역사', '철학', '예술', '심리', '교육']
+};
+
+const beginnerSentences = [
+    { t: "저는 [N]을/를 좋아합니다.", q: "이 사람은 무엇을 좋아합니까?", a: "[N]" },
+    { t: "오늘은 [N]이/가 옵니다.", q: "오늘 날씨는 어떻습니까?", a: "[N]" },
+    { t: "지금 [P]에 갑니다.", q: "이 사람은 어디에 갑니까?", a: "[P]" },
+    { t: "[T]에 친구를 만납니다.", q: "언제 친구를 만납니까?", a: "[T]" },
+    { t: "제 취미는 [V]기입니다.", q: "이 사람의 취미는 무엇입니까?", a: "[V]기" },
+    { t: "이것은 [N]입니다.", q: "이것은 무엇입니까?", a: "[N]" },
+    { t: "[N]이/가 맛있습니다.", q: "무엇이 맛있습니까?", a: "[N]" },
+    { t: "저는 [J]입니다.", q: "이 사람의 직업은 무엇입니까?", a: "[J]" },
+    { t: "[P]에서 운동을 합니다.", q: "어디에서 운동을 합니까?", a: "[P]" },
+    { t: "내일 [N]을/를 살 것입니다.", q: "내일 무엇을 할 것입니까?", a: "[N] 사기" }
+];
+
+const vocab = {
+    N: ['사과', '축구', '영화', '음악', '커피', '비', '눈', '바지', '가방', '모자', '책', '연필', '한국어', '드라마', '김치', '불고기', '여름', '겨울', '선물', '편지'],
+    P: ['학교', '집', '도서관', '식당', '카페', '공원', '시장', '백화점', '영화관', '병원', '약국', '은행', '우체국', '공항', '기숙사'],
+    T: ['주말', '내일', '오늘', '아침', '점심', '저녁', '오후', '밤', '일요일', '휴가'],
+    V: ['독서하', '요리하', '수영하', '노래하', '여행하', '등산하', '산책하', '공부하', '청소하', '운전하'],
+    J: ['학생', '선생님', '의사', '요리사', '가수', '배우', '회사원', '경찰', '기자', '운전기사']
+};
+
+// ==========================================
+// 생성 로직
+// ==========================================
+
+const createListeningQuestions = (level) => {
+    return Array.from({ length: 100 }, (_, i) => {
+        let script, question, options, answer, explanation;
+
+        if (level <= 2) { // 초급
+            const template = getRandomItem(beginnerSentences, i);
+            const n = getRandomItem(vocab.N, i);
+            const p = getRandomItem(vocab.P, i);
+            const t = getRandomItem(vocab.T, i);
+            const v = getRandomItem(vocab.V, i);
+            const j = getRandomItem(vocab.J, i);
+
+            script = template.t
+                .replace('[N]', n).replace('[P]', p).replace('[T]', t).replace('[V]', v).replace('[J]', j);
+            question = template.q;
+
+            const correct = template.a.replace('[N]', n).replace('[P]', p).replace('[T]', t).replace('[V]', v).replace('[J]', j);
+            // 오답 생성 (같은 카테고리에서 다른 것 선택)
+            const wrongPool = template.a.includes('[N]') ? vocab.N :
+                template.a.includes('[P]') ? vocab.P :
+                    template.a.includes('[T]') ? vocab.T :
+                        template.a.includes('[V]') ? vocab.V.map(x => x + '기') : vocab.J;
+
+            const wrongs = wrongPool.filter(w => w !== correct).slice(i % 5, (i % 5) + 3);
+            options = [correct, ...wrongs].sort(() => Math.random() - 0.5);
+            answer = options.indexOf(correct);
+            explanation = `지문에서 '${correct}'(이)라고 언급했습니다.`;
+
+        } else if (level <= 4) { // 중급
+            const topic = getRandomItem(commonTopics.intermediate, i);
+            script = `여자: 이번 ${topic}에 대해서 어떻게 생각하세요?\n남자: 저는 긍정적으로 생각해요. 특히 ${topic}은 우리 생활에 큰 도움이 되니까요.\n여자: 그렇군요. 저도 동의해요.`;
+            question = "남자의 중심 생각은 무엇입니까?";
+            options = [
+                `${topic}이/가 도움이 된다`,
+                `${topic}을/를 반대한다`,
+                `${topic}에 관심이 없다`,
+                `${topic}이/가 위험하다`
+            ];
+            answer = 0;
+            explanation = "남자는 긍정적으로 생각하고 도움이 된다고 말했습니다.";
+        } else { // 고급
+            const topic = getRandomItem(commonTopics.advanced, i);
+            script = `최근 ${topic} 분야의 이슈가 뜨겁습니다. 전문가들은 이러한 현상이 일시적인 유행이 아니라 사회 구조적인 변화라고 진단합니다. 따라서 우리는 ${topic}에 대한 단편적인 시각에서 벗어나 보다 근본적인 접근이 필요합니다.`;
+            question = "이 담화의 핵심 주제는 무엇입니까?";
+            options = [
+                `${topic}의 구조적 변화와 접근 필요성`,
+                `${topic}의 일시적 유행`,
+                `${topic} 전문가의 부족`,
+                `${topic}에 대한 대중의 무관심`
+            ];
+            answer = 0;
+            explanation = "단편적 시각에서 벗어나 근본적인 접근이 필요하다고 강조했습니다.";
+        }
+
+        return {
+            id: generateId('listening', level, i),
+            level,
+            type: 'listening',
+            audioScript: script,
+            question,
+            options,
+            correctAnswer: answer,
+            explanation
+        };
+    });
+};
+
+const createReadingQuestions = (level) => {
+    return Array.from({ length: 100 }, (_, i) => {
+        let passage, question, options, answer, explanation, vocabulary;
+
+        if (level <= 2) { // 초급
+            const n = getRandomItem(vocab.N, i);
+            const p = getRandomItem(vocab.P, i);
+            passage = `저는 ${n}을/를 좋아합니다. 그래서 ${p}에 자주 갑니다. ${p}에서 ${n}을/를 즐기면 기분이 좋습니다.`;
+            question = "이 사람은 왜 그곳에 갑니까?";
+            options = [
+                `${n}을/를 좋아해서`,
+                `${p}이/가 가까워서`,
+                "친구를 만나려고",
+                "운동을 하려고"
+            ];
+            answer = 0;
+            explanation = `${n}을/를 좋아해서 간다고 했습니다.`;
+            vocabulary = [`${n}: 좋아하는 것`, `${p}: 장소`];
+        } else if (level <= 4) { // 중급
+            const topic = getRandomItem(commonTopics.intermediate, i);
+            passage = `사람들은 누구나 ${topic}에 대해 고민합니다. 하지만 ${topic}을/를 해결하는 방법은 사람마다 다릅니다. 어떤 사람은 적극적으로 해결하려고 하고, 어떤 사람은 시간이 해결해 줄 것이라고 믿습니다. 중요한 것은 자신에게 맞는 방법을 찾는 것입니다.`;
+            question = "이 글의 내용과 같은 것은 무엇입니까?";
+            options = [
+                `${topic} 해결 방법은 사람마다 다르다`,
+                `${topic}은 해결할 수 없다`,
+                "모든 사람은 적극적이어야 한다",
+                "시간이 모든 것을 해결한다"
+            ];
+            answer = 0;
+            explanation = "해결하는 방법은 사람마다 다르다고 언급되어 있습니다.";
+            vocabulary = ["고민: 마음속으로 괴로워함", "적극적: 스스로 나서서 하는"];
+        } else { // 고급
+            const topic = getRandomItem(commonTopics.advanced, i);
+            passage = `${topic}은/는 현대 사회의 중요한 화두입니다. 과거에는 ${topic}이/가 단순히 개인의 문제로 치부되었으나, 이제는 사회 전체가 함께 고민해야 할 과제가 되었습니다. ${topic}의 올바른 방향 설정을 위해 정부와 시민 사회의 협력이 필수적입니다.`;
+            question = "필자의 주장으로 가장 알맞은 것은 무엇입니까?";
+            options = [
+                `${topic} 해결을 위해 사회적 협력이 필요하다`,
+                `${topic}은 개인의 문제이다`,
+                "정부의 역할만 중요하다",
+                "과거의 방식을 따라야 한다"
+            ];
+            answer = 0;
+            explanation = "정부와 시민 사회의 협력이 필수적이라고 주장하고 있습니다.";
+            vocabulary = ["화두: 이야기의 주제", "치부되다: 여겨지다", "필수적: 꼭 필요한"];
+        }
+
+        return {
+            id: generateId('reading', level, i),
+            level,
+            type: 'reading',
+            passage,
+            question,
+            options,
+            correctAnswer: answer,
+            explanation,
+            vocabulary
+        };
+    });
+};
+
+const createWritingQuestions = (level) => {
+    return Array.from({ length: 100 }, (_, i) => {
+        let prompt;
+        if (level <= 2) {
+            const topic = getRandomItem(commonTopics.beginner, i);
+            prompt = `당신이 좋아하는 ${topic}에 대해 쓰십시오. (100-200자)`;
+        } else if (level <= 4) {
+            const topic = getRandomItem(commonTopics.intermediate, i);
+            prompt = `${topic}의 장점과 단점에 대해 쓰십시오. (200-400자)`;
+        } else {
+            const topic = getRandomItem(commonTopics.advanced, i);
+            prompt = `현대 사회에서 ${topic}이/가 갖는 의미와 중요성에 대해 논하십시오. (600-700자)`;
+        }
+
+        return {
+            id: generateId('writing', level, i),
+            level,
+            type: 'writing',
+            prompt,
+            wordCount: level <= 2 ? 200 : level <= 4 ? 400 : 700,
+            guidelines: [
+                "주제에 맞게 쓰십시오",
+                "자신의 생각을 명확히 표현하십시오",
+                "적절한 어휘와 문법을 사용하십시오"
+            ],
+            sampleAnswer: "이것은 모범 답안 예시입니다. 실제 시험에서는 자신의 생각대로 작성해야 합니다.",
+            rubric: {
+                grammar: "문법 정확성",
+                vocabulary: "어휘 다양성",
+                content: "내용 충실성",
+                structure: "글의 구조"
+            }
+        };
+    });
+};
+
+// ==========================================
+// 데이터 내보내기
+// ==========================================
+
 export const sampleQuestions = {
     listening: {
-        1: [
-            {
-                id: "L1_001",
-                level: 1,
-                type: "listening",
-                audioScript: "안녕하세요. 저는 김민수입니다.",
-                question: "남자는 누구입니까?",
-                options: ["김민수", "이영희", "박철수", "최수진"],
-                correctAnswer: 0,
-                explanation: "남자가 '저는 김민수입니다'라고 말했으므로 정답은 1번입니다."
-            },
-            {
-                id: "L1_002",
-                level: 1,
-                type: "listening",
-                audioScript: "오늘 날씨가 정말 좋아요. 하늘이 맑고 따뜻합니다.",
-                question: "오늘 날씨는 어떻습니까?",
-                options: ["춥습니다", "비가 옵니다", "좋습니다", "흐립니다"],
-                correctAnswer: 2,
-                explanation: "날씨가 '정말 좋다'고 했으므로 정답은 3번입니다."
-            }
-        ],
-        2: [
-            {
-                id: "L2_001",
-                level: 2,
-                type: "listening",
-                audioScript: "여자: 주말에 뭐 하실 거예요?\n남자: 친구들하고 영화를 보러 갈 거예요.",
-                question: "남자는 주말에 무엇을 할 것입니까?",
-                options: ["쇼핑을 합니다", "영화를 봅니다", "운동을 합니다", "요리를 합니다"],
-                correctAnswer: 1,
-                explanation: "남자가 '영화를 보러 갈 거예요'라고 했으므로 정답은 2번입니다."
-            }
-        ],
-        3: [
-            {
-                id: "L3_001",
-                level: 3,
-                type: "listening",
-                audioScript: "요즘 한국어 공부가 재미있어서 매일 2시간씩 공부하고 있습니다. 특히 듣기 연습을 많이 하는데, 뉴스를 들으면서 모르는 단어를 찾아보고 있습니다.",
-                question: "이 사람은 무엇을 하고 있습니까?",
-                options: ["한국어를 가르칩니다", "한국어를 공부합니다", "뉴스를 만듭니다", "사전을 만듭니다"],
-                correctAnswer: 1,
-                explanation: "매일 한국어 공부를 하고 있다고 했으므로 정답은 2번입니다."
-            }
-        ]
+        1: createListeningQuestions(1),
+        2: createListeningQuestions(2),
+        3: createListeningQuestions(3),
+        4: createListeningQuestions(4),
+        5: createListeningQuestions(5),
+        6: createListeningQuestions(6)
     },
     reading: {
-        1: [
-            {
-                id: "R1_001",
-                level: 1,
-                type: "reading",
-                passage: "저는 학생입니다. 매일 학교에 갑니다.",
-                question: "이 사람은 무엇입니까?",
-                options: ["선생님", "학생", "의사", "요리사"],
-                correctAnswer: 1,
-                explanation: "'저는 학생입니다'라고 했으므로 정답은 2번입니다.",
-                vocabulary: ["학생: 학교에서 공부하는 사람", "매일: 하루도 빠짐없이"]
-            },
-            {
-                id: "R1_002",
-                level: 1,
-                type: "reading",
-                passage: "오늘은 일요일입니다. 날씨가 좋아서 공원에 갔습니다.",
-                question: "오늘은 무슨 요일입니까?",
-                options: ["월요일", "금요일", "토요일", "일요일"],
-                correctAnswer: 3,
-                explanation: "'오늘은 일요일입니다'라고 명시되어 있으므로 정답은 4번입니다.",
-                vocabulary: ["일요일: 한 주의 첫째 날", "공원: 사람들이 쉬거나 산책하는 곳"]
-            }
-        ],
-        2: [
-            {
-                id: "R2_001",
-                level: 2,
-                type: "reading",
-                passage: "저는 커피를 좋아합니다. 그래서 매일 아침 커피숍에 가서 커피를 마십니다. 커피를 마시면 기분이 좋아집니다.",
-                question: "이 사람은 언제 커피를 마십니까?",
-                options: ["저녁에", "점심에", "아침에", "밤에"],
-                correctAnswer: 2,
-                explanation: "'매일 아침 커피숍에 가서'라고 했으므로 정답은 3번입니다.",
-                vocabulary: ["커피숍: 커피를 파는 가게", "기분: 마음의 상태"]
-            }
-        ],
-        3: [
-            {
-                id: "R3_001",
-                level: 3,
-                type: "reading",
-                passage: "한국의 전통 음식 중 하나인 김치는 배추를 소금에 절여서 만듭니다. 김치는 비타민이 풍부하고 건강에 좋습니다. 많은 외국인들이 김치의 독특한 맛을 좋아합니다.",
-                question: "이 글의 중심 내용은 무엇입니까?",
-                options: ["배추의 종류", "김치의 특징", "한국의 역사", "비타민의 효능"],
-                correctAnswer: 1,
-                explanation: "김치의 만드는 방법과 특징을 설명하고 있으므로 정답은 2번입니다.",
-                vocabulary: ["전통: 옛날부터 전해 내려오는 것", "절이다: 소금물에 담가 간을 배게 하다", "풍부하다: 아주 많다"]
-            }
-        ]
+        1: createReadingQuestions(1),
+        2: createReadingQuestions(2),
+        3: createReadingQuestions(3),
+        4: createReadingQuestions(4),
+        5: createReadingQuestions(5),
+        6: createReadingQuestions(6)
     },
     writing: {
-        3: [
-            {
-                id: "W3_001",
-                level: 3,
-                type: "writing",
-                prompt: "최근에 본 영화나 읽은 책에 대해 소개하고, 그것을 추천하는 이유를 쓰십시오. (200-300자)",
-                wordCount: 300,
-                guidelines: [
-                    "자신이 본 영화나 읽은 책을 선택하세요",
-                    "내용을 간단히 소개하세요",
-                    "왜 추천하는지 이유를 명확히 쓰세요"
-                ],
-                sampleAnswer: "저는 최근에 '82년생 김지영'이라는 책을 읽었습니다. 이 책은 한국 사회에서 여성이 겪는 어려움을 보여주는 소설입니다. 주인공 김지영의 삶을 통해 많은 여성들이 공감할 수 있는 이야기를 담고 있습니다. 이 책을 읽으면서 우리 사회의 문제점에 대해 다시 생각하게 되었습니다. 특히 가족과 직장에서의 성차별 문제가 인상적이었습니다. 이 책은 한국 사회를 이해하고 싶은 분들에게 꼭 추천하고 싶습니다.",
-                rubric: {
-                    grammar: "문법이 정확하고 자연스러운가?",
-                    vocabulary: "적절한 어휘를 사용했는가?",
-                    content: "주제에 맞게 내용을 작성했는가?",
-                    structure: "글의 구조가 논리적인가?"
-                }
-            }
-        ]
+        1: createWritingQuestions(1),
+        2: createWritingQuestions(2),
+        3: createWritingQuestions(3),
+        4: createWritingQuestions(4),
+        5: createWritingQuestions(5),
+        6: createWritingQuestions(6)
     }
 };
 
-// 급수별로 여러 문제를 가져오는 함수
+// 호환성을 위한 함수
 export function getSampleQuestions(level, type, count = 10) {
-    const questions = sampleQuestions[type]?.[level] || sampleQuestions[type]?.[1] || [];
+    const questions = sampleQuestions[type]?.[level] || [];
 
-    // 문제가 부족하면 반복해서 채우기
-    const result = [];
-    for (let i = 0; i < count; i++) {
-        if (questions.length > 0) {
-            result.push({
-                ...questions[i % questions.length],
-                id: `${type[0].toUpperCase()}${level}_${String(i + 1).padStart(3, '0')}`
-            });
-        }
-    }
+    // 요청된 개수만큼 반환 (순차적 또는 랜덤)
+    // 여기서는 순차적으로 반환하되, 시작점을 랜덤하게 하여 매번 다르게 보이게 함
+    if (questions.length === 0) return [];
 
-    return result;
+    const startIndex = Math.floor(Math.random() * (questions.length - count));
+    const safeStartIndex = Math.max(0, startIndex);
+
+    return questions.slice(safeStartIndex, safeStartIndex + count);
 }

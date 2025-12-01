@@ -50,27 +50,78 @@ function MockTest() {
         setLoading(true);
 
         try {
-            // TOPIK II 기준: 듣기 50문항, 읽기 50문항, 쓰기 4문항
-            const [listeningQuestions, readingQuestions, writingQuestions] = await Promise.all([
-                generateQuestions(userLevel, 'listening', 50),
-                generateQuestions(userLevel, 'reading', 50),
-                generateQuestions(userLevel, 'writing', 4),
-            ]);
+            // 듣기 첫 문제만 먼저 로드
+            const firstListening = await generateQuestions(userLevel, 'listening', 1);
 
             setQuestions({
-                listening: listeningQuestions,
-                reading: readingQuestions,
-                writing: writingQuestions
+                listening: firstListening,
+                reading: [],
+                writing: []
             });
 
             setStage('listening');
             setTimeRemaining(60 * 60); // 듣기 60분
+            setLoading(false);
+
+            // 백그라운드에서 나머지 듣기 문제 생성
+            loadRemainingListeningQuestions();
         } catch (error) {
             console.error('모의고사 생성 오류:', error);
             alert('모의고사를 생성하는 중 오류가 발생했습니다.');
             setStage('intro');
-        } finally {
             setLoading(false);
+        }
+    };
+
+    const loadRemainingListeningQuestions = async () => {
+        try {
+            // 나머지 듣기 문제 순차 생성 (49개)
+            for (let i = 0; i < 49; i++) {
+                const question = await generateQuestions(userLevel, 'listening', 1);
+                setQuestions(prev => ({
+                    ...prev,
+                    listening: [...prev.listening, ...question]
+                }));
+            }
+        } catch (error) {
+            console.error('듣기 문제 추가 생성 오류:', error);
+        }
+    };
+
+    const loadReadingQuestions = async () => {
+        try {
+            // 읽기 첫 문제 로드
+            const firstReading = await generateQuestions(userLevel, 'reading', 1);
+            setQuestions(prev => ({
+                ...prev,
+                reading: firstReading
+            }));
+
+            // 나머지 읽기 문제 백그라운드 생성 (49개)
+            for (let i = 0; i < 49; i++) {
+                const question = await generateQuestions(userLevel, 'reading', 1);
+                setQuestions(prev => ({
+                    ...prev,
+                    reading: [...prev.reading, ...question]
+                }));
+            }
+        } catch (error) {
+            console.error('읽기 문제 생성 오류:', error);
+        }
+    };
+
+    const loadWritingQuestions = async () => {
+        try {
+            // 쓰기 문제 4개 순차 생성
+            for (let i = 0; i < 4; i++) {
+                const question = await generateQuestions(userLevel, 'writing', 1);
+                setQuestions(prev => ({
+                    ...prev,
+                    writing: [...prev.writing, ...question]
+                }));
+            }
+        } catch (error) {
+            console.error('쓰기 문제 생성 오류:', error);
         }
     };
 
@@ -100,9 +151,15 @@ function MockTest() {
         if (currentSection === 'listening') {
             setCurrentSection('reading');
             setTimeRemaining(70 * 60); // 읽기 70분
+            setLoading(true);
+            // 읽기 문제 로드 시작
+            loadReadingQuestions().finally(() => setLoading(false));
         } else if (currentSection === 'reading') {
             setCurrentSection('writing');
             setTimeRemaining(50 * 60); // 쓰기 50분
+            setLoading(true);
+            // 쓰기 문제 로드 시작
+            loadWritingQuestions().finally(() => setLoading(false));
         } else {
             handleComplete();
         }

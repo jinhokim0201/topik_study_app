@@ -18,41 +18,62 @@ function DiagnosticTest() {
         setLoading(true);
 
         try {
-            // 듣기 15문항 + 읽기 15문항 생성 (다양한 난이도)
-            const listeningPromises = [
-                generateQuestions(2, 'listening', 5),
-                generateQuestions(4, 'listening', 5),
-                generateQuestions(6, 'listening', 5),
-            ];
-
-            const readingPromises = [
-                generateQuestions(2, 'reading', 5),
-                generateQuestions(4, 'reading', 5),
-                generateQuestions(6, 'reading', 5),
-            ];
-
-            const [listening2, listening4, listening6, reading2, reading4, reading6] = await Promise.all([
-                ...listeningPromises,
-                ...readingPromises
-            ]);
-
-            const allQuestions = [
-                ...listening2,
-                ...listening4,
-                ...listening6,
-                ...reading2,
-                ...reading4,
-                ...reading6
-            ];
-
-            setQuestions(allQuestions);
+            // 첫 번째 문제만 먼저 로드 (2급 듣기 문제)
+            const firstQuestion = await generateQuestions(2, 'listening', 1);
+            setQuestions(firstQuestion);
             setStage('test');
+            setLoading(false);
+
+            // 백그라운드에서 나머지 문제들을 순차적으로 생성
+            loadRemainingQuestions();
         } catch (error) {
             console.error('문제 생성 오류:', error);
             alert('문제 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
             setStage('intro');
-        } finally {
             setLoading(false);
+        }
+    };
+
+    const loadRemainingQuestions = async () => {
+        try {
+            // 나머지 2급 듣기 문제 (4개)
+            for (let i = 0; i < 4; i++) {
+                const question = await generateQuestions(2, 'listening', 1);
+                setQuestions(prev => [...prev, ...question]);
+            }
+
+            // 4급 듣기 문제 (5개)
+            for (let i = 0; i < 5; i++) {
+                const question = await generateQuestions(4, 'listening', 1);
+                setQuestions(prev => [...prev, ...question]);
+            }
+
+            // 6급 듣기 문제 (5개)
+            for (let i = 0; i < 5; i++) {
+                const question = await generateQuestions(6, 'listening', 1);
+                setQuestions(prev => [...prev, ...question]);
+            }
+
+            // 2급 읽기 문제 (5개)
+            for (let i = 0; i < 5; i++) {
+                const question = await generateQuestions(2, 'reading', 1);
+                setQuestions(prev => [...prev, ...question]);
+            }
+
+            // 4급 읽기 문제 (5개)
+            for (let i = 0; i < 5; i++) {
+                const question = await generateQuestions(4, 'reading', 1);
+                setQuestions(prev => [...prev, ...question]);
+            }
+
+            // 6급 읽기 문제 (5개)
+            for (let i = 0; i < 5; i++) {
+                const question = await generateQuestions(6, 'reading', 1);
+                setQuestions(prev => [...prev, ...question]);
+            }
+        } catch (error) {
+            console.error('추가 문제 생성 오류:', error);
+            // 오류가 발생해도 이미 로드된 문제로 계속 진행 가능
         }
     };
 
@@ -64,7 +85,13 @@ function DiagnosticTest() {
         if (currentQuestionIndex < questions.length - 1) {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
         } else {
-            calculateLevel(newAnswers);
+            // 모든 문제를 풀었는지 확인
+            if (questions.length < 30) {
+                // 아직 30문제가 생성되지 않았다면 잠시 대기
+                alert('문제를 생성 중입니다. 잠시만 기다려주세요.');
+            } else {
+                calculateLevel(newAnswers);
+            }
         }
     };
 

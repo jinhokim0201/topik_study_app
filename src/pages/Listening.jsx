@@ -26,13 +26,24 @@ function Listening() {
     const loadQuestions = async (level) => {
         setLoading(true);
         try {
-            const newQuestions = await generateQuestions(level, 'listening', 10);
+            // 첫 문제만 로드
+            const newQuestions = await generateQuestions(level, 'listening', 1);
             setQuestions(newQuestions);
         } catch (error) {
             console.error('문제 로딩 오류:', error);
             alert('문제를 불러오는 중 오류가 발생했습니다.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadNextQuestion = async (level) => {
+        try {
+            const newQuestion = await generateQuestions(level, 'listening', 1);
+            setQuestions(prev => [...prev, ...newQuestion]);
+        } catch (error) {
+            console.error('다음 문제 로딩 오류:', error);
+            // 오류 발생 시 샘플 데이터가 자동으로 사용됨 (geminiService의 fallback)
         }
     };
 
@@ -43,13 +54,33 @@ function Listening() {
 
     const handleNext = () => {
         if (currentIndex < questions.length - 1) {
+            // 다음 문제로 이동
             setCurrentIndex(currentIndex + 1);
             setSelectedAnswer(null);
             setShowAnswer(false);
             setShowScript(false);
         } else {
-            alert('모든 문제를 완료했습니다!');
-            navigate('/');
+            // 마지막 문제인 경우
+            if (currentIndex < 9) {
+                // 아직 10문제 미만이면 다음 문제 생성
+                setCurrentIndex(currentIndex + 1);
+                setSelectedAnswer(null);
+                setShowAnswer(false);
+                setShowScript(false);
+                setLoading(true);
+
+                // 다음 문제 로드
+                loadNextQuestion(userLevel).finally(() => setLoading(false));
+            } else {
+                // 10문제 완료
+                alert('모든 문제를 완료했습니다!');
+                navigate('/');
+            }
+        }
+
+        // 백그라운드에서 다음 문제 미리 로드 (현재 인덱스 + 2번째 문제)
+        if (currentIndex + 2 < 10 && questions.length === currentIndex + 2) {
+            loadNextQuestion(userLevel);
         }
     };
 
